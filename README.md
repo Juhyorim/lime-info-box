@@ -22,6 +22,8 @@
 | 벡터 DB         | ChromaDB                                                      |
 | 서버            | Uvicorn                                                       |
 
+- 개발툴은 vscode
+
 <br/><br/>
 
 ## ⚙️ 동작 흐름
