@@ -2,6 +2,7 @@ import os
 import uuid
 import fitz  # PyMuPDF
 import chromadb
+from docx import Document as DocxDocument
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
@@ -17,7 +18,6 @@ print("⏳ 임베딩 모델 로딩 중...")
 embedder = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
 print("✅ 임베딩 모델 로딩 완료")
 
-# ── ChromaDB 초기화 (로컬 디스크 저장)
 chroma_client = chromadb.PersistentClient(path="./chroma_db")
 collection = chroma_client.get_or_create_collection(
     name="knowledge_base",
@@ -27,9 +27,11 @@ collection = chroma_client.get_or_create_collection(
 UPLOAD_DIR = "./uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
+SUPPORTED_EXTENSIONS = {".pdf", ".txt", ".md", ".docx"}
+
 
 # ════════════════════════════════════════════════
-# 유틸 함수들
+# 파일 형식별 텍스트 추출
 # ════════════════════════════════════════════════
 
 def extract_text_from_pdf(file_path: str) -> str:
@@ -42,6 +44,38 @@ def extract_text_from_pdf(file_path: str) -> str:
     doc.close()
     return full_text
 
+
+def extract_text_from_txt(file_path: str) -> str:
+    # UTF-8 → CP949 순으로 인코딩 시도 (한국어 문서 대응)
+    for encoding in ["utf-8", "cp949", "euc-kr"]:
+        try:
+            with open(file_path, "r", encoding=encoding) as f:
+                return f.read()
+        except UnicodeDecodeError:
+            continue
+    raise ValueError("파일 인코딩을 인식할 수 없습니다.")
+
+
+def extract_text_from_docx(file_path: str) -> str:
+    doc = DocxDocument(file_path)
+    return "\n".join([para.text for para in doc.paragraphs if para.text.strip()])
+
+
+def extract_text(file_path: str, extension: str) -> str:
+    """확장자에 따라 적절한 추출 함수 호출"""
+    if extension == ".pdf":
+        return extract_text_from_pdf(file_path)
+    elif extension in (".txt", ".md"):
+        return extract_text_from_txt(file_path)
+    elif extension == ".docx":
+        return extract_text_from_docx(file_path)
+    else:
+        raise ValueError(f"지원하지 않는 파일 형식입니다: {extension}")
+
+
+# ════════════════════════════════════════════════
+# 유틸 함수들
+# ════════════════════════════════════════════════
 
 def chunk_text(text: str, chunk_size: int = 500, overlap: int = 50) -> list[str]:
     chunks = []
@@ -72,9 +106,14 @@ def embed_texts(texts: list[str]) -> list[list[float]]:
 # ════════════════════════════════════════════════
 
 @app.post("/upload")
-async def upload_pdf(file: UploadFile = File(...)):
-    if not file.filename.endswith(".pdf"):
-        raise HTTPException(status_code=400, detail="PDF 파일만 업로드 가능합니다.")
+async def upload_file(file: UploadFile = File(...)):
+    ext = os.path.splitext(file.filename)[1].lower()
+
+    if ext not in SUPPORTED_EXTENSIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"지원하지 않는 형식입니다. 가능한 형식: {', '.join(SUPPORTED_EXTENSIONS)}"
+        )
 
     doc_id = str(uuid.uuid4())[:8]
     save_path = os.path.join(UPLOAD_DIR, f"{doc_id}_{file.filename}")
@@ -82,15 +121,15 @@ async def upload_pdf(file: UploadFile = File(...)):
     with open(save_path, "wb") as f:
         f.write(content)
 
-    raw_text = extract_text_from_pdf(save_path)
+    raw_text = extract_text(save_path, ext)
     if not raw_text.strip():
-        raise HTTPException(status_code=422, detail="텍스트를 추출할 수 없습니다. 스캔된 PDF일 수 있습니다.")
+        raise HTTPException(status_code=422, detail="텍스트를 추출할 수 없습니다.")
 
     chunks = chunk_text(raw_text, chunk_size=500, overlap=50)
     embeddings = embed_texts(chunks)
 
     ids = [f"{doc_id}_chunk_{i}" for i in range(len(chunks))]
-    metadatas = [{"doc_id": doc_id, "filename": file.filename, "chunk_index": i} for i in range(len(chunks))]
+    metadatas = [{"doc_id": doc_id, "filename": file.filename, "chunk_index": i, "file_type": ext} for i in range(len(chunks))]
 
     collection.add(
         ids=ids,
@@ -103,6 +142,7 @@ async def upload_pdf(file: UploadFile = File(...)):
         "status": "✅ 저장 완료",
         "doc_id": doc_id,
         "filename": file.filename,
+        "file_type": ext,
         "total_chars": len(raw_text),
         "total_chunks": len(chunks),
         "preview": raw_text[:300] + "..." if len(raw_text) > 300 else raw_text
@@ -117,7 +157,7 @@ class QueryRequest(BaseModel):
 @app.post("/search")
 async def search(req: QueryRequest):
     if collection.count() == 0:
-        raise HTTPException(status_code=404, detail="저장된 문서가 없습니다. 먼저 PDF를 업로드하세요.")
+        raise HTTPException(status_code=404, detail="저장된 문서가 없습니다. 먼저 파일을 업로드하세요.")
 
     query_embedding = embed_texts([req.query])[0]
     results = collection.query(
@@ -132,6 +172,7 @@ async def search(req: QueryRequest):
             "rank": i + 1,
             "content": results["documents"][0][i],
             "filename": results["metadatas"][0][i]["filename"],
+            "file_type": results["metadatas"][0][i].get("file_type", ""),
             "chunk_index": results["metadatas"][0][i]["chunk_index"],
             "similarity_score": round(1 - results["distances"][0][i], 4)
         })
@@ -149,7 +190,12 @@ async def list_documents():
     for meta in all_meta:
         doc_id = meta["doc_id"]
         if doc_id not in doc_map:
-            doc_map[doc_id] = {"doc_id": doc_id, "filename": meta["filename"], "chunk_count": 0}
+            doc_map[doc_id] = {
+                "doc_id": doc_id,
+                "filename": meta["filename"],
+                "file_type": meta.get("file_type", ""),
+                "chunk_count": 0
+            }
         doc_map[doc_id]["chunk_count"] += 1
 
     return {"documents": list(doc_map.values()), "total_chunks": collection.count()}

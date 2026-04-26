@@ -1,7 +1,21 @@
+# 웹 프레임워크
 fastapi==0.115.0
 uvicorn==0.30.6
+
+# 파일 업로드 처리
 python-multipart==0.0.12
+
+# PDF 텍스트 추출
 PyMuPDF==1.24.10
+
+# Word 문서 추출
+python-docx==1.2.0
+
+# 벡터 DB
 chromadb
+
+# 임베딩 모델
 sentence-transformers==3.1.1
+
+# 환경변수
 python-dotenv==1.0.1
