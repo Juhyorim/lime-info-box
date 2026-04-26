@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📚 개인 지식베이스</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #21262d;
+    --border: #30363d;
+    --accent: #58a6ff;
+    --accent2: #3fb950;
+    --danger: #f85149;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans KR', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .subtitle {
+    text-align: center;
+    color: var(--text-muted);
+    margin-bottom: 40px;
+    font-size: 0.9rem;
+  }
+
+  .container { max-width: 800px; margin: 0 auto; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .card h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-muted);
+  }
+
+  .drop-zone:hover, .drop-zone.dragover {
+    border-color: var(--accent);
+    background: rgba(88, 166, 255, 0.05);
+    color: var(--accent);
+  }
+
+  .drop-zone input { display: none; }
+
+  .drop-zone .icon { font-size: 2.5rem; margin-bottom: 8px; }
+
+  button {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    font-family: inherit;
+  }
+
+  button:hover { opacity: 0.85; }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  button.danger { background: var(--danger); color: #fff; }
+  button.sm { padding: 5px 12px; font-size: 0.8rem; }
+
+  input[type="text"], textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    margin-bottom: 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input[type="text"]:focus, textarea:focus { border-color: var(--accent); }
+
+  .result-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px;
+    margin-top: 12px;
+    font-size: 0.85rem;
+    display: none;
+  }
+
+  .result-box.show { display: block; }
+
+  .chunk-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px;
+    margin-bottom: 10px;
+  }
+
+  .chunk-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .similarity {
+    color: var(--accent2);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+  }
+
+  .chunk-text {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--text);
+    white-space: pre-wrap;
+  }
+
+  .doc-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .doc-row:last-child { border-bottom: none; }
+
+  .doc-info { font-size: 0.85rem; }
+  .doc-name { font-weight: 600; margin-bottom: 2px; }
+  .doc-meta { color: var(--text-muted); font-size: 0.78rem; }
+
+  .badge {
+    background: rgba(88, 166, 255, 0.15);
+    color: var(--accent);
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 0.9rem;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s;
+    z-index: 999;
+  }
+
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.success { border-color: var(--accent2); color: var(--accent2); }
+  .toast.error { border-color: var(--danger); color: var(--danger); }
+
+  .spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: #000;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .empty { text-align: center; color: var(--text-muted); padding: 20px; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>📚 개인 지식베이스</h1>
+  <p class="subtitle">PDF를 업로드하고 내용을 검색하세요</p>
+
+  <!-- 업로드 -->
+  <div class="card">
+    <h2>📤 문서 업로드</h2>
+    <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+      <div class="icon">📄</div>
+      <div>PDF를 드래그하거나 클릭해서 업로드</div>
+      <input type="file" id="fileInput" accept=".pdf">
+    </div>
+    <div class="result-box" id="uploadResult"></div>
+  </div>
+
+  <!-- 검색 -->
+  <div class="card">
+    <h2>🔍 검색</h2>
+    <input type="text" id="queryInput" placeholder="질문을 입력하세요. 예) MSA 패턴이 뭐야?">
+    <button id="searchBtn" onclick="doSearch()">검색</button>
+    <div class="result-box" id="searchResult"></div>
+  </div>
+
+  <!-- 문서 목록 -->
+  <div class="card">
+    <h2>📂 저장된 문서</h2>
+    <div id="docList"><div class="empty">문서가 없습니다</div></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const BASE = '';
+
+  // ── 드래그앤드롭
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = document.getElementById('fileInput');
+
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file) uploadFile(file);
+  });
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files[0]) uploadFile(fileInput.files[0]);
+  });
+
+  // ── 업로드
+  async function uploadFile(file) {
+    if (!file.name.endsWith('.pdf')) { showToast('PDF 파일만 가능합니다', 'error'); return; }
+
+    dropZone.innerHTML = `<div class="icon"><span class="spinner"></span></div><div>업로드 중...</div>`;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch('/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.detail);
+
+      const box = document.getElementById('uploadResult');
+      box.classList.add('show');
+      box.innerHTML = `
+        <div style="color:var(--accent2);font-weight:600;margin-bottom:8px">✅ 저장 완료!</div>
+        <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:4px">📄 ${data.filename}</div>
+        <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:10px">
+          총 ${data.total_chars.toLocaleString()}자 → <strong style="color:var(--accent)">${data.total_chunks}개 청크</strong> 생성
+        </div>
+        <div style="font-size:0.8rem;color:var(--text-muted);background:var(--bg);padding:10px;border-radius:6px;line-height:1.6">
+          ${data.preview.replace(/</g,'&lt;')}
+        </div>`;
+
+      showToast(`${data.total_chunks}개 청크 저장됨`, 'success');
+      loadDocs();
+    } catch (e) {
+      showToast(e.message || '업로드 실패', 'error');
+    } finally {
+      dropZone.innerHTML = `<div class="icon">📄</div><div>PDF를 드래그하거나 클릭해서 업로드</div><input type="file" id="fileInput" accept=".pdf">`;
+      document.getElementById('fileInput').addEventListener('change', () => {
+        if (document.getElementById('fileInput').files[0]) uploadFile(document.getElementById('fileInput').files[0]);
+      });
+    }
+  }
+
+  // ── 검색
+  async function doSearch() {
+    const query = document.getElementById('queryInput').value.trim();
+    if (!query) return;
+
+    const btn = document.getElementById('searchBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>검색 중';
+
+    try {
+      const res = await fetch('/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query, top_k: 3 })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail);
+
+      const box = document.getElementById('searchResult');
+      box.classList.add('show');
+
+      if (!data.results.length) { box.innerHTML = '<div class="empty">검색 결과가 없습니다</div>'; return; }
+
+      box.innerHTML = data.results.map(r => `
+        <div class="chunk-card">
+          <div class="chunk-header">
+            <span>📄 ${r.filename} · 청크 #${r.chunk_index}</span>
+            <span class="similarity">유사도 ${(r.similarity_score * 100).toFixed(1)}%</span>
+          </div>
+          <div class="chunk-text">${r.content.replace(/</g,'&lt;').substring(0, 400)}${r.content.length > 400 ? '...' : ''}</div>
+        </div>`).join('');
+    } catch (e) {
+      showToast(e.message || '검색 실패', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '검색';
+    }
+  }
+
+  document.getElementById('queryInput').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+
+  // ── 문서 목록
+  async function loadDocs() {
+    const res = await fetch('/documents');
+    const data = await res.json();
+    const el = document.getElementById('docList');
+
+    if (!data.documents.length) { el.innerHTML = '<div class="empty">문서가 없습니다</div>'; return; }
+
+    el.innerHTML = data.documents.map(d => `
+      <div class="doc-row">
+        <div class="doc-info">
+          <div class="doc-name">📄 ${d.filename}</div>
+          <div class="doc-meta">ID: ${d.doc_id}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="badge">${d.chunk_count} 청크</span>
+          <button class="sm danger" onclick="deleteDoc('${d.doc_id}', this)">삭제</button>
+        </div>
+      </div>`).join('');
+  }
+
+  async function deleteDoc(docId, btn) {
+    btn.disabled = true;
+    btn.textContent = '...';
+    const res = await fetch(`/documents/${docId}`, { method: 'DELETE' });
+    const data = await res.json();
+    showToast(`${data.deleted_chunks}개 청크 삭제됨`, 'success');
+    loadDocs();
+  }
+
+  // ── 토스트
+  function showToast(msg, type='') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `toast show ${type}`;
+    setTimeout(() => t.className = 'toast', 3000);
+  }
+
+  loadDocs();
+</script>
+</body>
+</html>
