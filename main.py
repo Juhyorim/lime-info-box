@@ -12,6 +12,7 @@ from sentence_transformers import SentenceTransformer
 from dotenv import load_dotenv
 from openai import OpenAI
 from typing import Optional
+import hashlib
 
 load_dotenv()
 
@@ -58,23 +59,31 @@ def call_llm(system_prompt: str, user_prompt: str) -> str:
 
 
 # ── ChromaDB 컬렉션 헬퍼 ─────────────────────────────────
+def encode_collection_name(name: str) -> str:
+    """
+    한글 등 특수문자 이름 → ChromaDB 호환 영문 ID로 변환
+    원본 이름은 metadata에 별도 저장
+    """
+    hash_val = hashlib.md5(name.encode("utf-8")).hexdigest()[:12]
+    return f"col_{hash_val}"
+
+def decode_collection_name(chroma_name: str, meta: dict) -> str:
+    """metadata에서 원본 이름 복원"""
+    return meta.get("display_name", chroma_name)
+
 def get_collection(name: str):
-    """
-    컬렉션명으로 컬렉션 객체 반환.
-    없으면 404 에러 (get_or_create 아님 — 명시적 생성 강제)
-    """
-    existing = [c.name for c in chroma_client.list_collections()]
-    if name not in existing:
-        raise HTTPException(status_code=404, detail=f"컬렉션 '{name}' 이 존재하지 않습니다. 먼저 생성하세요.")
-    return chroma_client.get_collection(
-        name=name,
-        metadata={"hnsw:space": "cosine"}
-    )
+    """display_name으로 찾아서 반환"""
+    for col in chroma_client.list_collections():
+        c = chroma_client.get_collection(col.name)
+        if c.metadata and c.metadata.get("display_name") == name:
+            return c
+    raise HTTPException(status_code=404, detail=f"컬렉션 '{name}' 이 존재하지 않습니다.")
 
 def get_or_create_collection(name: str):
+    encoded = encode_collection_name(name)
     return chroma_client.get_or_create_collection(
-        name=name,
-        metadata={"hnsw:space": "cosine"}
+        name=encoded,
+        metadata={"hnsw:space": "cosine", "display_name": name}
     )
 
 
@@ -180,26 +189,35 @@ class CollectionCreateRequest(BaseModel):
 
 @app.post("/collections")
 async def create_collection(req: CollectionCreateRequest):
-    """컬렉션 생성"""
     existing = [c.name for c in chroma_client.list_collections()]
-    if req.name in existing:
-        raise HTTPException(status_code=409, detail=f"'{req.name}' 은 이미 존재합니다.")
+    encoded = encode_collection_name(req.name)
+
+    # 동일 display_name 중복 체크
+    for c in chroma_client.list_collections():
+        col = chroma_client.get_collection(c.name)
+        if col.metadata and col.metadata.get("display_name") == req.name:
+            raise HTTPException(status_code=409, detail=f"'{req.name}' 은 이미 존재합니다.")
+
     chroma_client.get_or_create_collection(
-        name=req.name,
-        metadata={"hnsw:space": "cosine", "description": req.description}
+        name=encoded,
+        metadata={
+            "hnsw:space": "cosine",
+            "display_name": req.name,      # ← 원본 한글 이름 저장
+            "description": req.description
+        }
     )
     return {"status": "✅ 생성 완료", "name": req.name, "description": req.description}
 
 @app.get("/collections")
 async def list_collections():
-    """컬렉션 목록 + 각 청크 수"""
     cols = chroma_client.list_collections()
     result = []
     for col in cols:
         c = chroma_client.get_collection(col.name)
         meta = c.metadata or {}
         result.append({
-            "name": col.name,
+            "name": meta.get("display_name", col.name),   # ← 한글 이름으로 반환
+            "internal_name": col.name,
             "description": meta.get("description", ""),
             "chunk_count": c.count()
         })
@@ -207,12 +225,12 @@ async def list_collections():
 
 @app.delete("/collections/{name}")
 async def delete_collection(name: str):
-    """컬렉션 삭제 (안의 문서 전부 삭제됨)"""
-    existing = [c.name for c in chroma_client.list_collections()]
-    if name not in existing:
-        raise HTTPException(status_code=404, detail=f"'{name}' 컬렉션이 없습니다.")
-    chroma_client.delete_collection(name)
-    return {"status": "✅ 삭제 완료", "name": name}
+    for col in chroma_client.list_collections():
+        c = chroma_client.get_collection(col.name)
+        if c.metadata and c.metadata.get("display_name") == name:
+            chroma_client.delete_collection(col.name)
+            return {"status": "✅ 삭제 완료", "name": name}
+    raise HTTPException(status_code=404, detail=f"'{name}' 컬렉션이 없습니다.")
 
 
 # ── 업로드 API ────────────────────────────────────────────
