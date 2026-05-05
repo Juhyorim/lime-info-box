@@ -15,15 +15,43 @@
         background: #f0f2f5;
         color: #333;
       }
-
       .container {
-        max-width: 900px;
+        max-width: 960px;
         margin: 0 auto;
         padding: 24px;
       }
       h1 {
         font-size: 1.6rem;
-        margin-bottom: 24px;
+        margin-bottom: 20px;
+      }
+
+      /* 컬렉션 셀렉터 */
+      .collection-bar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: white;
+        padding: 12px 16px;
+        border-radius: 10px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+        margin-bottom: 20px;
+      }
+      .collection-bar label {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #4f46e5;
+        white-space: nowrap;
+      }
+      .collection-bar select {
+        flex: 1;
+        padding: 7px 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 0.9rem;
+      }
+      .collection-bar button {
+        padding: 7px 14px;
+        font-size: 0.85rem;
       }
 
       /* 탭 */
@@ -31,20 +59,20 @@
         display: flex;
         gap: 8px;
         margin-bottom: 20px;
+        flex-wrap: wrap;
       }
       .tab {
-        padding: 8px 20px;
+        padding: 8px 18px;
         border: none;
         border-radius: 8px;
         cursor: pointer;
         background: #ddd;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
       }
       .tab.active {
         background: #4f46e5;
         color: white;
       }
-
       .tab-content {
         display: none;
       }
@@ -57,18 +85,23 @@
         background: white;
         border-radius: 12px;
         padding: 20px;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
         margin-bottom: 16px;
+      }
+      .card h3 {
+        margin-bottom: 14px;
+        font-size: 1rem;
       }
 
       /* 입력 */
       input[type="text"],
-      textarea {
+      textarea,
+      select.full {
         width: 100%;
-        padding: 10px 14px;
+        padding: 9px 13px;
         border: 1px solid #ddd;
         border-radius: 8px;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         margin-bottom: 10px;
       }
       textarea {
@@ -76,13 +109,13 @@
         resize: vertical;
       }
       button {
-        padding: 10px 20px;
+        padding: 9px 18px;
         background: #4f46e5;
         color: white;
         border: none;
         border-radius: 8px;
         cursor: pointer;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
       }
       button:hover {
         background: #4338ca;
@@ -92,6 +125,9 @@
       }
       button.secondary {
         background: #6b7280;
+      }
+      button.success-btn {
+        background: #10b981;
       }
 
       /* 채팅 */
@@ -126,20 +162,26 @@
         border-bottom-left-radius: 2px;
         white-space: pre-wrap;
       }
-      .bubble.ai .sources {
-        margin-top: 10px;
-        padding-top: 10px;
-        border-top: 1px solid #e5e7eb;
-        font-size: 0.8rem;
-        color: #6b7280;
-      }
       .bubble.loading {
         align-self: flex-start;
         background: #f3f4f6;
         color: #9ca3af;
         font-style: italic;
       }
-
+      .sources {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid #e5e7eb;
+        font-size: 0.8rem;
+        color: #6b7280;
+      }
+      .source-item {
+        background: #f9fafb;
+        border-left: 3px solid #4f46e5;
+        padding: 5px 9px;
+        margin-top: 4px;
+        border-radius: 4px;
+      }
       .chat-input-row {
         display: flex;
         gap: 8px;
@@ -149,42 +191,7 @@
         flex: 1;
       }
 
-      /* provider 뱃지 */
-      .provider-badge {
-        display: inline-block;
-        padding: 3px 10px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: bold;
-        margin-left: 8px;
-      }
-      .provider-badge.gpt {
-        background: #d1fae5;
-        color: #065f46;
-      }
-      .provider-badge.claude {
-        background: #ede9fe;
-        color: #5b21b6;
-      }
-
-      /* 출처 */
-      .source-item {
-        background: #f9fafb;
-        border-left: 3px solid #4f46e5;
-        padding: 6px 10px;
-        margin-top: 4px;
-        border-radius: 4px;
-        font-size: 0.82rem;
-      }
-
-      /* 문서 목록 */
-      .doc-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px 0;
-        border-bottom: 1px solid #f0f0f0;
-      }
+      /* 뱃지 */
       .badge {
         display: inline-block;
         padding: 2px 8px;
@@ -207,20 +214,50 @@
         color: #065f46;
       }
 
-      /* provider 전환 */
-      .provider-row {
+      /* 문서 목록 */
+      .doc-item {
         display: flex;
-        gap: 8px;
+        justify-content: space-between;
         align-items: center;
-        margin-bottom: 16px;
-      }
-      .provider-row select {
-        padding: 8px 12px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        font-size: 0.9rem;
+        padding: 10px 0;
+        border-bottom: 1px solid #f0f0f0;
       }
 
+      /* 컬렉션 목록 */
+      .col-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      .col-item:hover {
+        background: #f5f3ff;
+      }
+      .col-item.active-col {
+        border-color: #4f46e5;
+        background: #f5f3ff;
+      }
+      .col-name {
+        font-weight: 600;
+        font-size: 0.95rem;
+      }
+      .col-desc {
+        font-size: 0.8rem;
+        color: #9ca3af;
+        margin-top: 2px;
+      }
+      .col-count {
+        font-size: 0.8rem;
+        color: #6b7280;
+        margin-right: 10px;
+      }
+
+      /* 상태 메시지 */
       .status {
         padding: 10px 14px;
         border-radius: 8px;
@@ -235,33 +272,52 @@
         background: #fee2e2;
         color: #991b1b;
       }
+      .status.info {
+        background: #dbeafe;
+        color: #1e40af;
+      }
     </style>
   </head>
   <body>
     <div class="container">
-      <h1>
-        📚 miniInfobase
-        <span class="provider-badge" id="providerBadge">gpt</span>
-      </h1>
+      <h1>📚 miniInfobase</h1>
 
-      <div class="tabs">
-        <button class="tab active" onclick="switchTab('chat')">
-          💬 AI 답변
-        </button>
-        <button class="tab" onclick="switchTab('upload')">📤 업로드</button>
-        <button class="tab" onclick="switchTab('docs')">📁 문서 목록</button>
-        <button class="tab" onclick="switchTab('settings')">⚙️ 설정</button>
+      <!-- 컬렉션 선택 바 -->
+      <div class="collection-bar">
+        <label>📂 현재 컬렉션</label>
+        <select id="globalCollection" onchange="onCollectionChange()">
+          <option value="">-- 컬렉션을 선택하세요 --</option>
+        </select>
+        <button onclick="switchTab('collections', event)">관리</button>
       </div>
 
-      <!-- 💬 AI 답변 탭 -->
+      <!-- 탭 -->
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('chat', event)">
+          💬 AI 답변
+        </button>
+        <button class="tab" onclick="switchTab('upload', event)">
+          📤 업로드
+        </button>
+        <button class="tab" onclick="switchTab('docs', event)">
+          📁 문서 목록
+        </button>
+        <button class="tab" onclick="switchTab('collections', event)">
+          📂 컬렉션 관리
+        </button>
+      </div>
+
+      <!-- 💬 AI 답변 -->
       <div id="tab-chat" class="tab-content active">
         <div class="card">
-          <div class="chat-box" id="chatBox"></div>
+          <div class="chat-box" id="chatBox">
+            <div class="bubble ai">👋 컬렉션을 선택하고 질문하세요!</div>
+          </div>
           <div class="chat-input-row">
             <input
               type="text"
               id="chatInput"
-              placeholder="문서에 대해 질문하세요..."
+              placeholder="질문을 입력하세요..."
               onkeydown="if (event.key === 'Enter') sendAsk();"
             />
             <button onclick="sendAsk()">전송</button>
@@ -270,10 +326,13 @@
         </div>
       </div>
 
-      <!-- 📤 업로드 탭 -->
+      <!-- 📤 업로드 -->
       <div id="tab-upload" class="tab-content">
         <div class="card">
-          <h3 style="margin-bottom: 14px">파일 업로드</h3>
+          <h3>파일 업로드</h3>
+          <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 12px">
+            현재 컬렉션: <b id="uploadColLabel">미선택</b>
+          </p>
           <input
             type="file"
             id="fileInput"
@@ -285,7 +344,10 @@
           <div id="uploadStatus"></div>
         </div>
         <div class="card">
-          <h3 style="margin-bottom: 14px">텍스트 직접 입력</h3>
+          <h3>텍스트 직접 입력</h3>
+          <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 12px">
+            현재 컬렉션: <b id="textColLabel">미선택</b>
+          </p>
           <input
             type="text"
             id="textTitle"
@@ -300,7 +362,7 @@
         </div>
       </div>
 
-      <!-- 📁 문서 목록 탭 -->
+      <!-- 📁 문서 목록 -->
       <div id="tab-docs" class="tab-content">
         <div class="card">
           <div
@@ -310,41 +372,41 @@
               margin-bottom: 14px;
             "
           >
-            <h3>저장된 문서</h3>
+            <h3>
+              문서 목록 —
+              <span id="docsColLabel" style="color: #4f46e5">미선택</span>
+            </h3>
             <button onclick="loadDocs()">새로고침</button>
           </div>
-          <div id="docList">로딩 중...</div>
+          <div id="docList">컬렉션을 선택하세요.</div>
         </div>
       </div>
 
-      <!-- ⚙️ 설정 탭 -->
-      <div id="tab-settings" class="tab-content">
+      <!-- 📂 컬렉션 관리 -->
+      <div id="tab-collections" class="tab-content">
         <div class="card">
-          <h3 style="margin-bottom: 14px">LLM Provider 전환</h3>
-          <div class="provider-row">
-            <select id="providerSelect">
-              <option value="gpt">GPT (OpenAI)</option>
-              <option value="claude">Claude (Anthropic)</option>
-            </select>
-            <select id="modelSelect">
-              <option value="gpt-4o-mini">gpt-4o-mini (저렴)</option>
-              <option value="gpt-4o">gpt-4o (고성능)</option>
-              <option value="claude-haiku-4-5">claude-haiku (저렴)</option>
-              <option value="claude-sonnet-4-5">claude-sonnet (고성능)</option>
-            </select>
-            <button onclick="changeProvider()">변경</button>
-          </div>
-          <div id="providerStatus"></div>
-        </div>
-        <div class="card">
-          <h3 style="margin-bottom: 14px">검색 설정</h3>
-          <label style="font-size: 0.9rem">참고 청크 수 (top_k)</label>
+          <h3>새 컬렉션 만들기</h3>
           <input
             type="text"
-            id="topKInput"
-            value="3"
-            style="width: 80px; margin-left: 10px; margin-bottom: 0"
+            id="newColName"
+            placeholder="컬렉션 이름 (예: 일상, 공부, 친구_철수)"
           />
+          <input type="text" id="newColDesc" placeholder="설명 (선택)" />
+          <button class="success-btn" onclick="createCollection()">생성</button>
+          <div id="createColStatus"></div>
+        </div>
+        <div class="card">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 14px;
+            "
+          >
+            <h3>컬렉션 목록</h3>
+            <button onclick="loadCollections()">새로고침</button>
+          </div>
+          <div id="collectionList">로딩 중...</div>
         </div>
       </div>
     </div>
@@ -352,9 +414,10 @@
     <script>
       const API = "http://localhost:8000";
       let sessionId = "session_" + Date.now();
+      let currentCollection = "";
 
       // ── 탭 전환 ──────────────────────────────────────────
-      function switchTab(name) {
+      function switchTab(name, event) {
         document
           .querySelectorAll(".tab-content")
           .forEach((el) => el.classList.remove("active"));
@@ -362,46 +425,158 @@
           .querySelectorAll(".tab")
           .forEach((el) => el.classList.remove("active"));
         document.getElementById("tab-" + name).classList.add("active");
-        event.target.classList.add("active");
+        if (event && event.target) event.target.classList.add("active");
         if (name === "docs") loadDocs();
-        if (name === "settings") loadProviderStatus();
+        if (name === "collections") loadCollections();
+      }
+
+      // ── 컬렉션 변경 ──────────────────────────────────────
+      function onCollectionChange() {
+        currentCollection = document.getElementById("globalCollection").value;
+        document.getElementById("uploadColLabel").textContent =
+          currentCollection || "미선택";
+        document.getElementById("textColLabel").textContent =
+          currentCollection || "미선택";
+        document.getElementById("docsColLabel").textContent =
+          currentCollection || "미선택";
+        document.getElementById("chatBox").innerHTML =
+          `<div class="bubble ai">📂 <b>${currentCollection || "미선택"}</b> 컬렉션으로 전환됐습니다. 질문하세요!</div>`;
+        sessionId = "session_" + Date.now(); // 컬렉션 바뀌면 세션도 초기화
+      }
+
+      function getCollection() {
+        if (!currentCollection) {
+          alert("컬렉션을 먼저 선택하세요.");
+          return null;
+        }
+        return currentCollection;
+      }
+
+      // ── 컬렉션 셀렉트 박스 갱신 ──────────────────────────
+      async function refreshCollectionSelect() {
+        const res = await fetch(`${API}/collections`);
+        const data = await res.json();
+        const sel = document.getElementById("globalCollection");
+        const prev = sel.value;
+        sel.innerHTML = '<option value="">-- 컬렉션을 선택하세요 --</option>';
+        data.collections.forEach((c) => {
+          const opt = document.createElement("option");
+          opt.value = c.name;
+          opt.textContent = `${c.name} (${c.chunk_count}청크)`;
+          sel.appendChild(opt);
+        });
+        if (prev) sel.value = prev;
+        return data.collections;
+      }
+
+      // ── 컬렉션 관리 탭 ───────────────────────────────────
+      async function loadCollections() {
+        const cols = await refreshCollectionSelect();
+        const el = document.getElementById("collectionList");
+        if (!cols.length) {
+          el.innerHTML =
+            '<p style="color:#9ca3af">컬렉션이 없습니다. 먼저 만들어보세요!</p>';
+          return;
+        }
+        el.innerHTML = cols
+          .map(
+            (c) => `
+      <div class="col-item ${c.name === currentCollection ? "active-col" : ""}" onclick="selectCollection('${c.name}')">
+        <div>
+          <div class="col-name">📂 ${c.name}</div>
+          <div class="col-desc">${c.description || "설명 없음"}</div>
+        </div>
+        <div style="display:flex; align-items:center">
+          <span class="col-count">${c.chunk_count}청크</span>
+          <button class="danger" style="padding:5px 10px; font-size:0.8rem"
+            onclick="event.stopPropagation(); deleteCollection('${c.name}')">삭제</button>
+        </div>
+      </div>`,
+          )
+          .join("");
+      }
+
+      function selectCollection(name) {
+        document.getElementById("globalCollection").value = name;
+        onCollectionChange();
+      }
+
+      async function createCollection() {
+        const name = document.getElementById("newColName").value.trim();
+        const desc = document.getElementById("newColDesc").value.trim();
+        if (!name) return alert("이름을 입력하세요.");
+        const statusEl = document.getElementById("createColStatus");
+        const res = await fetch(`${API}/collections`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, description: desc }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          statusEl.innerHTML = `<div class="status success">✅ '${name}' 생성 완료</div>`;
+          document.getElementById("newColName").value = "";
+          document.getElementById("newColDesc").value = "";
+          await loadCollections();
+        } else {
+          statusEl.innerHTML = `<div class="status error">❌ ${data.detail}</div>`;
+        }
+      }
+
+      async function deleteCollection(name) {
+        if (!confirm(`'${name}' 컬렉션과 안의 문서를 모두 삭제할까요?`)) return;
+        const res = await fetch(
+          `${API}/collections/${encodeURIComponent(name)}`,
+          { method: "DELETE" },
+        );
+        if (res.ok) {
+          if (currentCollection === name) {
+            currentCollection = "";
+            document.getElementById("globalCollection").value = "";
+            onCollectionChange();
+          }
+          await loadCollections();
+        }
       }
 
       // ── AI 답변 ──────────────────────────────────────────
       async function sendAsk() {
+        const col = getCollection();
+        if (!col) return;
         const input = document.getElementById("chatInput");
         const query = input.value.trim();
         if (!query) return;
-
         appendBubble("user", query);
         input.value = "";
-
         const loadingEl = appendBubble("loading", "🤔 답변 생성 중...");
-        const topK = parseInt(document.getElementById("topKInput").value) || 3;
-
         try {
           const res = await fetch(`${API}/ask`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ query, top_k: topK, session_id: sessionId }),
+            body: JSON.stringify({
+              query,
+              top_k: 3,
+              collection: col,
+              session_id: sessionId,
+            }),
           });
           const data = await res.json();
           loadingEl.remove();
-
           if (!res.ok) {
-            appendBubble("ai", "❌ " + (data.detail || "오류가 발생했습니다."));
+            appendBubble("ai", "❌ " + (data.detail || "오류"));
             return;
           }
-
-          // 출처 HTML
           const sourcesHtml = data.sources
             .map(
-              (s, i) =>
+              (s) =>
                 `<div class="source-item">📄 ${s.filename} | 청크 #${s.chunk_index} | 유사도 ${s.similarity_score}</div>`,
             )
             .join("");
-
-          appendBubbleWithSources(data.answer, sourcesHtml, data.provider);
+          const el = document.createElement("div");
+          el.className = "bubble ai";
+          el.innerHTML = `<div>${data.answer.replace(/\n/g, "<br>")}</div>
+        <div class="sources"><b>📎 참고 출처</b>${sourcesHtml}</div>`;
+          document.getElementById("chatBox").appendChild(el);
+          document.getElementById("chatBox").scrollTop = 99999;
         } catch (e) {
           loadingEl.remove();
           appendBubble("ai", "❌ 서버 연결 오류");
@@ -414,36 +589,31 @@
         el.className = `bubble ${type}`;
         el.textContent = text;
         box.appendChild(el);
-        box.scrollTop = box.scrollHeight;
+        box.scrollTop = 99999;
         return el;
       }
 
-      function appendBubbleWithSources(answer, sourcesHtml, provider) {
-        const box = document.getElementById("chatBox");
-        const el = document.createElement("div");
-        el.className = "bubble ai";
-        el.innerHTML = `<div>${answer.replace(/\n/g, "<br>")}</div>
-      <div class="sources">
-        <b>📎 참고 출처</b>${sourcesHtml}
-      </div>`;
-        box.appendChild(el);
-        box.scrollTop = box.scrollHeight;
-      }
-
       async function clearChat() {
-        await fetch(`${API}/conversation/${sessionId}`, { method: "DELETE" });
+        const col = currentCollection || "default";
+        await fetch(
+          `${API}/conversation/${sessionId}?collection=${encodeURIComponent(col)}`,
+          { method: "DELETE" },
+        );
         document.getElementById("chatBox").innerHTML = "";
         sessionId = "session_" + Date.now();
       }
 
       // ── 업로드 ───────────────────────────────────────────
       async function uploadFile() {
+        const col = getCollection();
+        if (!col) return;
         const file = document.getElementById("fileInput").files[0];
         if (!file) return alert("파일을 선택하세요.");
         const form = new FormData();
         form.append("file", file);
+        form.append("collection", col);
         const statusEl = document.getElementById("uploadStatus");
-        statusEl.innerHTML = '<div class="status">⏳ 업로드 중...</div>';
+        statusEl.innerHTML = '<div class="status info">⏳ 업로드 중...</div>';
         try {
           const res = await fetch(`${API}/upload`, {
             method: "POST",
@@ -451,7 +621,8 @@
           });
           const data = await res.json();
           if (res.ok) {
-            statusEl.innerHTML = `<div class="status success">✅ ${data.filename} 저장 완료 (${data.total_chunks}개 청크)</div>`;
+            statusEl.innerHTML = `<div class="status success">✅ ${data.filename} → '${col}' 저장 완료 (${data.total_chunks}청크)</div>`;
+            refreshCollectionSelect();
           } else {
             statusEl.innerHTML = `<div class="status error">❌ ${data.detail}</div>`;
           }
@@ -462,6 +633,8 @@
       }
 
       async function uploadText() {
+        const col = getCollection();
+        if (!col) return;
         const title = document.getElementById("textTitle").value.trim();
         const content = document.getElementById("textContent").value.trim();
         if (!title || !content) return alert("제목과 내용을 입력하세요.");
@@ -472,8 +645,9 @@
         );
         const form = new FormData();
         form.append("file", file);
+        form.append("collection", col);
         const statusEl = document.getElementById("textStatus");
-        statusEl.innerHTML = '<div class="status">⏳ 저장 중...</div>';
+        statusEl.innerHTML = '<div class="status info">⏳ 저장 중...</div>';
         try {
           const res = await fetch(`${API}/upload`, {
             method: "POST",
@@ -481,9 +655,10 @@
           });
           const data = await res.json();
           if (res.ok) {
-            statusEl.innerHTML = `<div class="status success">✅ 저장 완료 (${data.total_chunks}개 청크)</div>`;
+            statusEl.innerHTML = `<div class="status success">✅ '${col}' 에 저장 완료 (${data.total_chunks}청크)</div>`;
             document.getElementById("textTitle").value = "";
             document.getElementById("textContent").value = "";
+            refreshCollectionSelect();
           } else {
             statusEl.innerHTML = `<div class="status error">❌ ${data.detail}</div>`;
           }
@@ -495,70 +670,48 @@
 
       // ── 문서 목록 ─────────────────────────────────────────
       async function loadDocs() {
-        const res = await fetch(`${API}/documents`);
+        const col = getCollection();
+        if (!col) return;
+        const res = await fetch(
+          `${API}/documents?collection=${encodeURIComponent(col)}`,
+        );
         const data = await res.json();
         const el = document.getElementById("docList");
         if (!data.documents.length) {
-          el.innerHTML = '<p style="color:#9ca3af">저장된 문서가 없습니다.</p>';
+          el.innerHTML =
+            '<p style="color:#9ca3af">이 컬렉션에 문서가 없습니다.</p>';
           return;
         }
         el.innerHTML =
-          `<p style="color:#6b7280; margin-bottom:10px">총 ${data.documents.length}개 문서 / ${data.total_chunks}개 청크</p>` +
+          `<p style="color:#6b7280; margin-bottom:10px">총 ${data.documents.length}개 문서 / ${data.total_chunks}청크</p>` +
           data.documents
             .map(
               (d) => `
         <div class="doc-item">
-          <span>${d.filename} <span class="badge ${d.file_type.replace(".", "")}">${d.file_type}</span>
-          <span style="color:#9ca3af; font-size:0.8rem"> ${d.chunk_count}청크</span></span>
-          <button class="danger" onclick="deleteDoc('${d.doc_id}', this)" style="padding:6px 12px; font-size:0.8rem">삭제</button>
+          <span>${d.filename}
+            <span class="badge ${d.file_type.replace(".", "")}">${d.file_type}</span>
+            <span style="color:#9ca3af; font-size:0.8rem"> ${d.chunk_count}청크</span>
+          </span>
+          <button class="danger" style="padding:5px 10px; font-size:0.8rem"
+            onclick="deleteDoc('${d.doc_id}')">삭제</button>
         </div>`,
             )
             .join("");
       }
 
-      async function deleteDoc(docId, btn) {
+      async function deleteDoc(docId) {
+        const col = getCollection();
+        if (!col) return;
         if (!confirm("삭제할까요?")) return;
-        const res = await fetch(`${API}/documents/${docId}`, {
-          method: "DELETE",
-        });
+        const res = await fetch(
+          `${API}/documents/${docId}?collection=${encodeURIComponent(col)}`,
+          { method: "DELETE" },
+        );
         if (res.ok) loadDocs();
       }
 
-      // ── Provider 설정 ─────────────────────────────────────
-      async function loadProviderStatus() {
-        const res = await fetch(`${API}/settings/provider`);
-        const data = await res.json();
-        document.getElementById("providerSelect").value = data.provider;
-        document.getElementById("modelSelect").value = data.model;
-        updateProviderBadge(data.provider);
-      }
-
-      async function changeProvider() {
-        const provider = document.getElementById("providerSelect").value;
-        const model = document.getElementById("modelSelect").value;
-        const res = await fetch(`${API}/settings/provider`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ provider, model }),
-        });
-        const data = await res.json();
-        const statusEl = document.getElementById("providerStatus");
-        if (res.ok) {
-          statusEl.innerHTML = `<div class="status success">✅ ${data.provider} / ${data.model} 로 변경 완료</div>`;
-          updateProviderBadge(data.provider);
-        } else {
-          statusEl.innerHTML = `<div class="status error">❌ ${data.detail}</div>`;
-        }
-      }
-
-      function updateProviderBadge(provider) {
-        const badge = document.getElementById("providerBadge");
-        badge.textContent = provider;
-        badge.className = `provider-badge ${provider}`;
-      }
-
       // ── 초기화 ────────────────────────────────────────────
-      loadProviderStatus();
+      refreshCollectionSelect();
     </script>
   </body>
 </html>
