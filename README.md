@@ -2,6 +2,8 @@
 
 개인 문서(PDF)를 업로드하고 자연어로 검색할 수 있는 **개인 지식베이스 AI 비서**입니다.
 
+![alt text](img/mainImg.png)
+
 <br/><br/>
 
 ## ✨ 주요 기능
@@ -10,6 +12,8 @@
 - **자연어 검색** — 질문을 입력하면 관련된 문서 청크를 유사도 순으로 반환
 - **문서 관리** — 저장된 문서 목록 확인 및 삭제
 
+<img src="img/uploadImg.png" width=350/>
+<img src="img/listImg.png" width=350/>
 <br/><br/>
 
 ## 🛠️ 기술 스택
@@ -23,6 +27,7 @@
 | 서버            | Uvicorn                                                       |
 
 - 개발툴은 vscode
+- claude code 사용([세팅 관련 docs](https://github.com/Juhyorim/lime-info-box/blob/master/docs/0_%EA%B0%9C%EB%B0%9C%ED%99%98%EA%B2%BD%EC%84%B8%ED%8C%85.md))
 
 <br/><br/>
 
