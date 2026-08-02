@@ -20,6 +20,7 @@
 
 | 역할            | 기술                                                          |
 | --------------- | ------------------------------------------------------------- |
+| Python버전      | 3.12                                                          |
 | 웹 프레임워크   | FastAPI                                                       |
 | PDF 텍스트 추출 | PyMuPDF                                                       |
 | 임베딩 모델     | sentence-transformers (paraphrase-multilingual-MiniLM-L12-v2) |
@@ -114,7 +115,7 @@ miniInfobase/
 - [x] PDF 업로드 및 텍스트 추출
 - [x] 청크 분할 및 임베딩 생성
 - [x] ChromaDB 벡터 저장 및 유사도 검색
-- [ ] LLM 연동 (GPT / Claude API) 으로 실제 답변 생성
-- [ ] 멀티턴 대화 히스토리
-- [ ] 출처 페이지 표시
+- [x] LLM 연동 (GPT / Claude API) 으로 실제 답변 생성
+- [x] 멀티턴 대화 히스토리
+- [x] 출처 페이지 표시
 - [ ] 배포 (Railway / Fly.io)

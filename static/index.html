@@ -568,7 +568,7 @@
           const sourcesHtml = data.sources
             .map(
               (s) =>
-                `<div class="source-item">📄 ${s.filename} | 청크 #${s.chunk_index} | 유사도 ${s.similarity_score}</div>`,
+                `<div class="source-item">📄 ${s.filename}${s.page > 0 ? ` (p.${s.page})` : ""} | 청크 #${s.chunk_index} | 유사도 ${s.similarity_score}</div>`,
             )
             .join("");
           const el = document.createElement("div");

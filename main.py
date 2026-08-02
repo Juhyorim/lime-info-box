@@ -1,4 +1,5 @@
 import os
+import re
 import uuid
 import fitz
 import chromadb
@@ -132,9 +133,23 @@ def chunk_text(text, chunk_size=500, overlap=50):
                 end = boundary + 1
         chunk = text[start:end].strip()
         if chunk:
-            chunks.append(chunk)
+            chunks.append((chunk, start))
         start = end - overlap
     return chunks
+
+
+PAGE_MARKER_RE = re.compile(r"\[페이지 (\d+)\]")
+
+def build_page_offsets(text):
+    return [(m.start(), int(m.group(1))) for m in PAGE_MARKER_RE.finditer(text)]
+
+def page_for_offset(page_offsets, offset):
+    page = None
+    for marker_offset, page_num in page_offsets:
+        if marker_offset > offset:
+            break
+        page = page_num
+    return page
 
 def embed_texts(texts):
     return embedder.encode(texts, show_progress_bar=False).tolist()
@@ -256,11 +271,23 @@ async def upload_file(
     if not raw_text.strip():
         raise HTTPException(status_code=422, detail="텍스트를 추출할 수 없습니다.")
 
-    chunks = chunk_text(raw_text)
+    chunk_pairs = chunk_text(raw_text)
+    chunks = [c for c, _ in chunk_pairs]
     embeddings = embed_texts(chunks)
 
+    page_offsets = build_page_offsets(raw_text) if ext == ".pdf" else []
+
     ids = [f"{doc_id}_chunk_{i}" for i in range(len(chunks))]
-    metadatas = [{"doc_id": doc_id, "filename": file.filename, "chunk_index": i, "file_type": ext} for i in range(len(chunks))]
+    metadatas = [
+        {
+            "doc_id": doc_id,
+            "filename": file.filename,
+            "chunk_index": i,
+            "file_type": ext,
+            "page": (page_for_offset(page_offsets, offset) or -1) if ext == ".pdf" else -1,
+        }
+        for i, (_, offset) in enumerate(chunk_pairs)
+    ]
     col.add(ids=ids, embeddings=embeddings, documents=chunks, metadatas=metadatas)
 
     return {
@@ -296,6 +323,7 @@ async def search(req: QueryRequest):
             "content": results["documents"][0][i],
             "filename": results["metadatas"][0][i]["filename"],
             "chunk_index": results["metadatas"][0][i]["chunk_index"],
+            "page": results["metadatas"][0][i].get("page", -1),
             "similarity_score": round(1 - results["distances"][0][i], 4)
         })
     return {"query": req.query, "collection": req.collection, "results": hits}
@@ -326,6 +354,7 @@ async def ask(req: AskRequest):
             "content": results["documents"][0][i],
             "filename": results["metadatas"][0][i]["filename"],
             "chunk_index": results["metadatas"][0][i]["chunk_index"],
+            "page": results["metadatas"][0][i].get("page", -1),
             "similarity_score": round(1 - results["distances"][0][i], 4)
         })
 
