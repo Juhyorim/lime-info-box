@@ -1,0 +1,12 @@
+venv/
+__pycache__/
+*.pyc
+.git/
+.git-rewrite/
+chroma_db/
+uploads/
+.env
+docs/
+img/
+README.md
+CLAUDE.md
