@@ -21,4 +21,5 @@ sentence-transformers==3.1.1
 python-dotenv==1.0.1
 
 openai==1.54.0
+httpx<0.28  # openai 1.54.0이 httpx의 proxies 인자에 의존 (0.28+에서 제거됨)
 # anthropic==0.40.0
